@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyLedger — Airline Inventory Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== Side rail ===== -->
+  <aside class="rail">
+    <div class="rail-brand">
+      <span class="rail-brand__mark">SL</span>
+      <div class="rail-brand__text">
+        <strong>SkyLedger</strong>
+        <small>Inventory Control</small>
+      </div>
+    </div>
+
+    <nav class="rail-nav">
+      <button class="rail-nav__item is-active" data-view="dashboard">
+        <span class="rail-nav__dot"></span> Dashboard
+      </button>
+      <button class="rail-nav__item" data-view="flights">
+        <span class="rail-nav__dot"></span> Flights
+      </button>
+      <button class="rail-nav__item" data-view="aircraft">
+        <span class="rail-nav__dot"></span> Aircraft
+      </button>
+      <button class="rail-nav__item" data-view="routes">
+        <span class="rail-nav__dot"></span> Routes
+      </button>
+      <button class="rail-nav__item" data-view="fares">
+        <span class="rail-nav__dot"></span> Fare Inventory
+      </button>
+      <button class="rail-nav__item" data-view="availability">
+        <span class="rail-nav__dot"></span> Availability &amp; Sync
+      </button>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="rail-clock" id="railClock">— : — : —</div>
+      <div class="rail-foot__label">Local system time</div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="viewTitle">Operations Dashboard</h1>
+        <p id="viewSubtitle">Live snapshot of the network</p>
+      </div>
+      <div class="topbar-status">
+        <span class="pill pill--live"><i></i> Inventory synced</span>
+      </div>
+    </header>
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <section class="view is-active" id="view-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-card__label">Active flights</span>
+          <span class="stat-card__value" id="statFlights">0</span>
+          <span class="stat-card__foot">Scheduled &amp; boarding</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Aircraft in fleet</span>
+          <span class="stat-card__value" id="statAircraft">0</span>
+          <span class="stat-card__foot">Across all types</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Seats booked today</span>
+          <span class="stat-card__value" id="statBooked">0</span>
+          <span class="stat-card__foot" id="statBookedPct">0% load factor</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__label">Routes served</span>
+          <span class="stat-card__value" id="statRoutes">0</span>
+          <span class="stat-card__foot">Direct &amp; connecting</span>
+        </div>
+      </div>
+
+      <div class="panel-row">
+        <div class="panel panel--wide">
+          <div class="panel__head">
+            <h2>Flight board</h2>
+            <span class="panel__hint">Real-time seat availability by cabin</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="dashboardBoard">
+              <thead>
+                <tr>
+                  <th>Flight</th><th>Route</th><th>Depart</th><th>Aircraft</th>
+                  <th>Economy</th><th>Prem. Eco</th><th>Business</th><th>First</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__head">
+            <h2>Maintenance watch</h2>
+            <span class="panel__hint">Upcoming aircraft holds</span>
+          </div>
+          <ul class="watch-list" id="maintenanceWatch"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- FLIGHTS ---------- -->
+    <section class="view" id="view-flights">
+      <div class="panel-row">
+        <div class="panel panel--form">
+          <div class="panel__head"><h2>Schedule a flight</h2></div>
+          <form id="flightForm" class="form">
+            <label>Flight number
+              <input type="text" name="flightNumber" placeholder="SL 204" required>
+            </label>
+            <label>Route
+              <select name="routeId" id="flightRouteSelect" required></select>
+            </label>
+            <label>Aircraft
+              <select name="aircraftId" id="flightAircraftSelect" required></select>
+            </label>
+            <div class="form-row">
+              <label>Departure date
+                <input type="date" name="date" required>
+              </label>
+              <label>Departure time
+                <input type="time" name="time" required>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--primary">Add flight</button>
+          </form>
+        </div>
+
+        <div class="panel panel--wide">
+          <div class="panel__head">
+            <h2>All flights</h2>
+            <span class="panel__hint">Update schedule, reassign aircraft, or cancel</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="flightsTable">
+              <thead>
+                <tr>
+                  <th>Flight</th><th>Route</th><th>Aircraft</th><th>Depart</th>
+                  <th>Seats (booked/total)</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- AIRCRAFT ---------- -->
+    <section class="view" id="view-aircraft">
+      <div class="panel-row">
+        <div class="panel panel--form">
+          <div class="panel__head"><h2>Register aircraft</h2></div>
+          <form id="aircraftForm" class="form">
+            <label>Tail / registration
+              <input type="text" name="tail" placeholder="VT-SLK" required>
+            </label>
+            <label>Type
+              <input type="text" name="type" placeholder="Airbus A321neo" required>
+            </label>
+            <div class="form-row">
+              <label>Economy seats
+                <input type="number" name="economy" min="0" value="150" required>
+              </label>
+              <label>Prem. Economy
+                <input type="number" name="premium" min="0" value="24" required>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Business seats
+                <input type="number" name="business" min="0" value="16" required>
+              </label>
+              <label>First seats
+                <input type="number" name="first" min="0" value="0" required>
+              </label>
+            </div>
+            <label>Next maintenance date
+              <input type="date" name="maintenance">
+            </label>
+            <label>Maintenance note
+              <input type="text" name="maintenanceNote" placeholder="A-check">
+            </label>
+            <button type="submit" class="btn btn--primary">Add aircraft</button>
+          </form>
+        </div>
+
+        <div class="panel panel--wide">
+          <div class="panel__head">
+            <h2>Fleet</h2>
+            <span class="panel__hint">Capacity is derived from cabin configuration</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="aircraftTable">
+              <thead>
+                <tr>
+                  <th>Tail</th><th>Type</th><th>Capacity</th><th>Configuration</th><th>Next maintenance</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- ROUTES ---------- -->
+    <section class="view" id="view-routes">
+      <div class="panel-row">
+        <div class="panel panel--form">
+          <div class="panel__head"><h2>Define a route</h2></div>
+          <form id="routeForm" class="form">
+            <label>Source airport (IATA)
+              <input type="text" name="source" maxlength="3" placeholder="DEL" required>
+            </label>
+            <label>Destination airport (IATA)
+              <input type="text" name="destination" maxlength="3" placeholder="BOM" required>
+            </label>
+            <label>Intermediate stops <small>(comma separated IATA codes, optional)</small>
+              <input type="text" name="stops" placeholder="JAI, AMD">
+            </label>
+            <button type="submit" class="btn btn--primary">Add route</button>
+          </form>
+        </div>
+
+        <div class="panel panel--wide">
+          <div class="panel__head"><h2>Route network</h2></div>
+          <div class="table-wrap">
+            <table class="table" id="routesTable">
+              <thead>
+                <tr><th>Route</th><th>Source</th><th>Destination</th><th>Stops</th><th>Flights on route</th><th>Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- FARES ---------- -->
+    <section class="view" id="view-fares">
+      <div class="panel-row">
+        <div class="panel panel--form">
+          <div class="panel__head"><h2>Allocate a fare class</h2></div>
+          <form id="fareForm" class="form">
+            <label>Flight
+              <select name="flightId" id="fareFlightSelect" required></select>
+            </label>
+            <label>Cabin
+              <select name="cabin" required>
+                <option value="economy">Economy</option>
+                <option value="premium">Premium Economy</option>
+                <option value="business">Business</option>
+                <option value="first">First</option>
+              </select>
+            </label>
+            <label>Fare class name
+              <input type="text" name="fareName" placeholder="Y — Full Flex" required>
+            </label>
+            <div class="form-row">
+              <label>Price (₹)
+                <input type="number" name="price" min="0" required>
+              </label>
+              <label>Seats allocated
+                <input type="number" name="allocated" min="0" required>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--primary">Allocate fare</button>
+          </form>
+        </div>
+
+        <div class="panel panel--wide">
+          <div class="panel__head">
+            <h2>Fare buckets</h2>
+            <span class="panel__hint">Sub-allocations within each cabin's seat inventory</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="faresTable">
+              <thead>
+                <tr><th>Flight</th><th>Cabin</th><th>Fare class</th><th>Price</th><th>Allocated</th><th>Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- AVAILABILITY / SYNC ---------- -->
+    <section class="view" id="view-availability">
+      <div class="panel-row">
+        <div class="panel panel--form">
+          <div class="panel__head">
+            <h2>Book / release seats</h2>
+            <span class="panel__hint">Simulates a POS or OTA sale — inventory updates instantly</span>
+          </div>
+          <form id="bookingForm" class="form">
+            <label>Flight
+              <select name="flightId" id="bookingFlightSelect" required></select>
+            </label>
+            <label>Cabin
+              <select name="cabin" required>
+                <option value="economy">Economy</option>
+                <option value="premium">Premium Economy</option>
+                <option value="business">Business</option>
+                <option value="first">First</option>
+              </select>
+            </label>
+            <label>Number of seats
+              <input type="number" name="count" min="1" value="1" required>
+            </label>
+            <div class="form-row">
+              <button type="submit" class="btn btn--primary" data-action="book">Book seats</button>
+              <button type="submit" class="btn btn--ghost" data-action="release">Cancel booking</button>
+            </div>
+            <label class="checkbox">
+              <input type="checkbox" name="allowOverbook" id="allowOverbook">
+              Allow controlled overbooking (max 3% over capacity)
+            </label>
+          </form>
+          <div class="log" id="bookingLog"></div>
+        </div>
+
+        <div class="panel panel--wide">
+          <div class="panel__head">
+            <h2>Live availability</h2>
+            <span class="panel__hint">Booked vs. available seats per cabin, updated on every transaction</span>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="availabilityTable">
+              <thead>
+                <tr>
+                  <th>Flight</th><th>Cabin</th><th>Total</th><th>Booked</th><th>Available</th><th>Load</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
