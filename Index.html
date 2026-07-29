@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airline Inventory Management System</title>
+<style>
+:root {
+  --navy: #0b2545;
+  --navy-light: #13315c;
+  --accent: #ff8c42;
+  --bg: #f4f6f9;
+  --card-bg: #ffffff;
+  --border: #e1e5ea;
+  --text: #1c2733;
+  --text-muted: #667085;
+  --success: #1a8754;
+  --danger: #c0392b;
+  --warning: #b8860b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  background: linear-gradient(135deg, var(--navy), var(--navy-light));
+  color: #fff;
+  padding: 18px 28px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.brand { font-size: 22px; font-weight: 700; }
+.subtitle { font-size: 14px; opacity: 0.85; }
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 14px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+
+.tab-btn:hover { color: var(--navy); }
+
+.tab-btn.active {
+  color: var(--navy);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+main { padding: 24px 28px 60px; max-width: 1200px; margin: 0 auto; }
+
+.tab-panel { display: none; animation: fadeIn .2s ease-in; }
+.tab-panel.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+h2 { margin-top: 0; color: var(--navy); }
+h3 { color: var(--navy); font-size: 16px; }
+
+.hint { color: var(--text-muted); font-size: 13px; margin-top: -6px; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 22px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  gap: 6px;
+}
+
+.form-grid input, .form-grid select {
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.form-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+button {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+button:hover { background: var(--navy-light); }
+
+button.secondary {
+  background: #fff;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+}
+
+button.danger { background: var(--danger); }
+button.hidden { display: none; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.data-table th, .data-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  background: #eef2f7;
+  color: var(--navy);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover { background: #fafbfd; }
+
+.badge { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge.ok { background: #e5f6ec; color: var(--success); }
+.badge.low { background: #fdf1dc; color: var(--warning); }
+.badge.full { background: #fbe9e7; color: var(--danger); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.card .num { font-size: 28px; font-weight: 700; color: var(--navy); }
+.card .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.log-box {
+  background: #0b1e33;
+  color: #b7d3f2;
+  font-family: "Consolas", monospace;
+  font-size: 12.5px;
+  padding: 14px;
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.log-box div { padding: 2px 0; }
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--navy);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  font-weight: 600;
+}
+
+.icon-btn.danger { color: var(--danger); }
+
+.footer {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">✈ Airline IMS</div>
+  <div class="subtitle">Flight &amp; Seat Inventory Management System</div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+  <button class="tab-btn" data-tab="flights">Flight Management</button>
+  <button class="tab-btn" data-tab="aircraft">Aircraft Management</button>
+  <button class="tab-btn" data-tab="routes">Route Management</button>
+  <button class="tab-btn" data-tab="inventory">Seat Inventory</button>
+  <button class="tab-btn" data-tab="fares">Fare Inventory</button>
+  <button class="tab-btn" data-tab="availability">Availability Check</button>
+</nav>
+
+<main id="app">
+
+  <!-- DASHBOARD -->
+  <section class="tab-panel active" id="tab-dashboard">
+    <h2>Overview</h2>
+    <div class="card-grid" id="dashboardCards"></div>
+    <h3>Recent Inventory Sync Log</h3>
+    <div class="log-box" id="syncLog"></div>
+  </section>
+
+  <!-- FLIGHT MANAGEMENT -->
+  <section class="tab-panel" id="tab-flights">
+    <h2>Flight Management</h2>
+    <form id="flightForm" class="form-grid">
+      <input type="hidden" id="flightEditId">
+      <label>Flight Number <input type="text" id="flightNumber" required placeholder="e.g. AI-202"></label>
+      <label>Route
+        <select id="flightRoute" required></select>
+      </label>
+      <label>Aircraft
+        <select id="flightAircraft" required></select>
+      </label>
+      <label>Departure <input type="datetime-local" id="flightDeparture" required></label>
+      <label>Arrival <input type="datetime-local" id="flightArrival" required></label>
+      <label>Status
+        <select id="flightStatus">
+          <option value="Scheduled">Scheduled</option>
+          <option value="Delayed">Delayed</option>
+          <option value="Departed">Departed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </label>
+      <div class="form-actions">
+        <button type="submit" id="flightSubmitBtn">Add Flight</button>
+        <button type="button" id="flightCancelEdit" class="secondary hidden">Cancel Edit</button>
+      </div>
+    </form>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Flight #</th><th>Route</th><th>Aircraft</th><th>Departure</th><th>Arrival</th>
+          <th>Status</th><th>Seats (Avail/Total)</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="flightsTableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- AIRCRAFT MANAGEMENT -->
+  <section class="tab-panel" id="tab-aircraft">
+    <h2>Aircraft Management</h2>
+    <form id="aircraftForm" class="form-grid">
+      <input type="hidden" id="aircraftEditId">
+      <label>Aircraft Code <input type="text" id="aircraftCode" required placeholder="e.g. A320-01"></label>
+      <label>Model <input type="text" id="aircraftModel" required placeholder="e.g. Airbus A320"></label>
+      <label>First Class Seats <input type="number" min="0" id="capFirst" value="0" required></label>
+      <label>Business Class Seats <input type="number" min="0" id="capBusiness" value="0" required></label>
+      <label>Premium Economy Seats <input type="number" min="0" id="capPremium" value="0" required></label>
+      <label>Economy Seats <input type="number" min="0" id="capEconomy" value="0" required></label>
+      <label>Next Maintenance Date <input type="date" id="aircraftMaintenance" required></label>
+      <div class="form-actions">
+        <button type="submit" id="aircraftSubmitBtn">Add Aircraft</button>
+        <button type="button" id="aircraftCancelEdit" class="secondary hidden">Cancel Edit</button>
+      </div>
+    </form>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Code</th><th>Model</th><th>Total Capacity</th><th>F/B/PE/E</th>
+          <th>Next Maintenance</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="aircraftTableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- ROUTE MANAGEMENT -->
+  <section class="tab-panel" id="tab-routes">
+    <h2>Route Management</h2>
+    <form id="routeForm" class="form-grid">
+      <input type="hidden" id="routeEditId">
+      <label>Source Airport (IATA) <input type="text" id="routeSource" maxlength="4" required placeholder="e.g. DEL"></label>
+      <label>Destination Airport (IATA) <input type="text" id="routeDestination" maxlength="4" required placeholder="e.g. BOM"></label>
+      <label>Intermediate Stops <input type="text" id="routeStops" placeholder="comma separated, optional e.g. HYD, BLR"></label>
+      <div class="form-actions">
+        <button type="submit" id="routeSubmitBtn">Add Route</button>
+        <button type="button" id="routeCancelEdit" class="secondary hidden">Cancel Edit</button>
+      </div>
+    </form>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Route Code</th><th>Source</th><th>Destination</th><th>Stops</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="routesTableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- SEAT INVENTORY -->
+  <section class="tab-panel" id="tab-inventory">
+    <h2>Seat Inventory Management</h2>
+    <p class="hint">Simulate bookings/cancellations to see real-time inventory sync and overbooking control.</p>
+    <div class="form-grid">
+      <label>Select Flight
+        <select id="invFlightSelect"></select>
+      </label>
+      <label>Seat Class
+        <select id="invClassSelect">
+          <option>Economy</option>
+          <option>Premium Economy</option>
+          <option>Business</option>
+          <option>First Class</option>
+        </select>
+      </label>
+      <label>Allow Controlled Overbooking (%)
+        <input type="number" id="invOverbookPct" min="0" max="20" value="0">
+      </label>
+      <div class="form-actions">
+        <button type="button" id="bookSeatBtn">Book 1 Seat</button>
+        <button type="button" id="cancelSeatBtn" class="secondary">Cancel 1 Seat</button>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Flight #</th><th>Class</th><th>Total</th><th>Booked</th><th>Available</th><th>Overbook Limit</th><th>Status</th></tr>
+      </thead>
+      <tbody id="inventoryTableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- FARE INVENTORY -->
+  <section class="tab-panel" id="tab-fares">
+    <h2>Fare Inventory</h2>
+    <form id="fareForm" class="form-grid">
+      <label>Select Flight
+        <select id="fareFlightSelect"></select>
+      </label>
+      <label>Fare Class
+        <select id="fareClassSelect">
+          <option>Economy</option>
+          <option>Premium Economy</option>
+          <option>Business</option>
+          <option>First Class</option>
+        </select>
+      </label>
+      <label>Fare Code <input type="text" id="fareCode" placeholder="e.g. Y-SAVER" required></label>
+      <label>Price (₹) <input type="number" id="farePrice" min="0" required></label>
+      <label>Seats Allocated to Fare <input type="number" id="fareAllocated" min="0" required></label>
+      <div class="form-actions">
+        <button type="submit" id="fareSubmitBtn">Add Fare</button>
+      </div>
+    </form>
+    <table class="data-table">
+      <thead>
+        <tr><th>Flight #</th><th>Class</th><th>Fare Code</th><th>Price</th><th>Seats Allocated</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="faresTableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- AVAILABILITY CHECK -->
+  <section class="tab-panel" id="tab-availability">
+    <h2>Real-Time Availability Checking</h2>
+    <form id="availForm" class="form-grid">
+      <label>Source Airport <input type="text" id="availSource" placeholder="e.g. DEL"></label>
+      <label>Destination Airport <input type="text" id="availDestination" placeholder="e.g. BOM"></label>
+      <label>Class
+        <select id="availClass">
+          <option value="">Any</option>
+          <option>Economy</option>
+          <option>Premium Economy</option>
+          <option>Business</option>
+          <option>First Class</option>
+        </select>
+      </label>
+      <div class="form-actions">
+        <button type="submit">Check Availability</button>
+      </div>
+    </form>
+    <table class="data-table">
+      <thead>
+        <tr><th>Flight #</th><th>Route</th><th>Departure</th><th>Class</th><th>Available Seats</th><th>Status</th></tr>
+      </thead>
+      <tbody id="availabilityTableBody"></tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer class="footer">Airline Reservation System — Inventory Management Module (Front-end Demo)</footer>
+
+<script>
+/* =========================================================
+   AIRLINE INVENTORY MANAGEMENT SYSTEM
+   In-memory data store (simulates a database for this demo)
+   ========================================================= */
+
+const SEAT_CLASSES = ["First Class", "Business", "Premium Economy", "Economy"];
+
+let state = {
+  aircraft: [
+    { id: "AC1", code: "A320-01", model: "Airbus A320", cap: { "First Class": 0, "Business": 12, "Premium Economy": 24, "Economy": 132 }, maintenance: "2026-09-15" },
+    { id: "AC2", code: "B788-01", model: "Boeing 787-8", cap: { "First Class": 8, "Business": 28, "Premium Economy": 35, "Economy": 180 }, maintenance: "2026-10-02" }
+  ],
+  routes: [
+    { id: "RT1", source: "DEL", destination: "BOM", stops: [] },
+    { id: "RT2", source: "BLR", destination: "DEL", stops: ["HYD"] }
+  ],
+  flights: [],
+  inventory: {},   // inventory[flightId][class] = { total, booked, overbookPct }
+  fares: [],       // { id, flightId, class, code, price, allocated }
+  log: []
+};
+
+let idCounters = { flight: 1, route: 3, aircraft: 3, fare: 1 };
+
+/* ---------------------------------------------------------
+   UTILITIES
+   --------------------------------------------------------- */
+
+function uid(prefix, counterKey) {
+  const n = idCounters[counterKey]++;
+  return `${prefix}${n}`;
+}
+
+function pushLog(msg) {
+  const time = new Date().toLocaleTimeString();
+  state.log.unshift(`[${time}] ${msg}`);
+  if (state.log.length > 30) state.log.pop();
+  renderLog();
+}
+
+function getAircraft(id) { return state.aircraft.find(a => a.id === id); }
+function getRoute(id) { return state.routes.find(r => r.id === id); }
+function getFlight(id) { return state.flights.find(f => f.id === id); }
+
+function totalCapacity(aircraft) {
+  return SEAT_CLASSES.reduce((sum, c) => sum + (aircraft.cap[c] || 0), 0);
+}
+
+function initInventoryForFlight(flight) {
+  const aircraft = getAircraft(flight.aircraftId);
+  const inv = {};
+  SEAT_CLASSES.forEach(cls => {
+    inv[cls] = { total: aircraft.cap[cls] || 0, booked: 0, overbookPct: 0 };
+  });
+  state.inventory[flight.id] = inv;
+}
+
+function availableSeats(flightId, cls) {
+  const inv = state.inventory[flightId][cls];
+  const limit = Math.floor(inv.total * (1 + inv.overbookPct / 100));
+  return limit - inv.booked;
+}
+
+function flightTotalAvailable(flightId) {
+  const inv = state.inventory[flightId];
+  let avail = 0, total = 0;
+  SEAT_CLASSES.forEach(cls => {
+    avail += availableSeats(flightId, cls);
+    total += inv[cls].total;
+  });
+  return { avail, total };
+}
+
+/* ---------------------------------------------------------
+   SEED DATA: two demo flights
+   --------------------------------------------------------- */
+
+function seedFlights() {
+  const f1 = {
+    id: uid("FL", "flight"), flightNumber: "AI-202", routeId: "RT1", aircraftId: "AC1",
+    departure: "2026-08-05T09:00", arrival: "2026-08-05T11:15", status: "Scheduled"
+  };
+  const f2 = {
+    id: uid("FL", "flight"), flightNumber: "AI-880", routeId: "RT2", aircraftId: "AC2",
+    departure: "2026-08-06T14:30", arrival: "2026-08-06T17:45", status: "Scheduled"
+  };
+  state.flights.push(f1, f2);
+  initInventoryForFlight(f1);
+  initInventoryForFlight(f2);
+  // demo bookings
+  state.inventory[f1.id]["Economy"].booked = 118;
+  state.inventory[f1.id]["Business"].booked = 10;
+  state.inventory[f2.id]["Economy"].booked = 165;
+  state.inventory[f2.id]["Premium Economy"].booked = 30;
+
+  state.fares.push(
+    { id: uid("FR", "fare"), flightId: f1.id, class: "Economy", code: "Y-SAVER", price: 4500, allocated: 90 },
+    { id: uid("FR", "fare"), flightId: f1.id, class: "Economy", code: "Y-FLEX", price: 6200, allocated: 42 },
+    { id: uid("FR", "fare"), flightId: f2.id, class: "Business", code: "C-STD", price: 15800, allocated: 28 }
+  );
+}
+
+/* ---------------------------------------------------------
+   TAB NAVIGATION
+   --------------------------------------------------------- */
+
+document.getElementById("tabs").addEventListener("click", (e) => {
+  if (!e.target.classList.contains("tab-btn")) return;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  e.target.classList.add("active");
+  document.getElementById(`tab-${e.target.dataset.tab}`).classList.add("active");
+  renderAll();
+});
+
+/* ---------------------------------------------------------
+   DROPDOWN POPULATION HELPERS
+   --------------------------------------------------------- */
+
+function fillSelect(select, items, valueFn, labelFn, placeholder) {
+  select.innerHTML = "";
+  if (placeholder) {
+    const opt = document.createElement("option");
+    opt.value = ""; opt.textContent = placeholder;
+    select.appendChild(opt);
+  }
+  items.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = valueFn(item);
+    opt.textContent = labelFn(item);
+    select.appendChild(opt);
+  });
+}
+
+function refreshDropdowns() {
+  fillSelect(document.getElementById("flightRoute"), state.routes, r => r.id, r => `${r.id}: ${r.source} → ${r.destination}`);
+  fillSelect(document.getElementById("flightAircraft"), state.aircraft, a => a.id, a => `${a.code} (${a.model})`);
+  fillSelect(document.getElementById("invFlightSelect"), state.flights, f => f.id, f => f.flightNumber);
+  fillSelect(document.getElementById("fareFlightSelect"), state.flights, f => f.id, f => f.flightNumber);
+}
+
+/* ---------------------------------------------------------
+   RENDER: DASHBOARD
+   --------------------------------------------------------- */
+
+function renderDashboard() {
+  const totalFlights = state.flights.length;
+  const totalAircraft = state.aircraft.length;
+  const totalRoutes = state.routes.length;
+  let totalAvail = 0, totalSeats = 0;
+  state.flights.forEach(f => {
+    const { avail, total } = flightTotalAvailable(f.id);
+    totalAvail += avail; totalSeats += total;
+  });
+
+  const cards = [
+    { num: totalFlights, label: "Active Flights" },
+    { num: totalAircraft, label: "Aircraft in Fleet" },
+    { num: totalRoutes, label: "Routes Managed" },
+    { num: totalAvail, label: "Seats Available Now" },
+    { num: totalSeats, label: "Total Seat Capacity" },
+    { num: state.fares.length, label: "Fare Classes Defined" }
+  ];
+
+  const container = document.getElementById("dashboardCards");
+  container.innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="num">${c.num}</div>
+      <div class="label">${c.label}</div>
+    </div>
+  `).join("");
+}
+
+function renderLog() {
+  const box = document.getElementById("syncLog");
+  box.innerHTML = state.log.map(l => `<div>${l}</div>`).join("") || "<div>No sync events yet.</div>";
+}
+
+/* ---------------------------------------------------------
+   RENDER: FLIGHTS
+   --------------------------------------------------------- */
+
+function statusBadge(avail, total) {
+  if (avail <= 0) return `<span class="badge full">Full</span>`;
+  if (avail / total < 0.15) return `<span class="badge low">Low</span>`;
+  return `<span class="badge ok">Open</span>`;
+}
+
+function renderFlights() {
+  const tbody = document.getElementById("flightsTableBody");
+  tbody.innerHTML = state.flights.map(f => {
+    const route = getRoute(f.routeId);
+    const aircraft = getAircraft(f.aircraftId);
+    const { avail, total } = flightTotalAvailable(f.id);
+    return `
+      <tr>
+        <td>${f.flightNumber}</td>
+        <td>${route ? `${route.source} → ${route.destination}` : "-"}</td>
+        <td>${aircraft ? aircraft.code : "-"}</td>
+        <td>${f.departure.replace("T", " ")}</td>
+        <td>${f.arrival.replace("T", " ")}</td>
+        <td>${f.status}</td>
+        <td>${avail} / ${total} ${statusBadge(avail, total)}</td>
+        <td>
+          <button class="icon-btn" onclick="editFlight('${f.id}')">Edit</button>
+          <button class="icon-btn danger" onclick="cancelFlight('${f.id}')">Cancel</button>
+        </td>
+      </tr>`;
+  }).join("") || `<tr><td colspan="8">No flights added yet.</td></tr>`;
+}
+
+document.getElementById("flightForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const editId = document.getElementById("flightEditId").value;
+  const data = {
+    flightNumber: document.getElementById("flightNumber").value.trim(),
+    routeId: document.getElementById("flightRoute").value,
+    aircraftId: document.getElementById("flightAircraft").value,
+    departure: document.getElementById("flightDeparture").value,
+    arrival: document.getElementById("flightArrival").value,
+    status: document.getElementById("flightStatus").value
+  };
+
+  if (editId) {
+    const flight = getFlight(editId);
+    const aircraftChanged = flight.aircraftId !== data.aircraftId;
+    Object.assign(flight, data);
+    if (aircraftChanged) initInventoryForFlight(flight); // reassigning aircraft resets seat map
+    pushLog(`Flight ${flight.flightNumber} updated.`);
+  } else {
+    const flight = { id: uid("FL", "flight"), ...data };
+    state.flights.push(flight);
+    initInventoryForFlight(flight);
+    pushLog(`Flight ${flight.flightNumber} added and aircraft assigned.`);
+  }
+
+  e.target.reset();
+  document.getElementById("flightEditId").value = "";
+  document.getElementById("flightSubmitBtn").textContent = "Add Flight";
+  document.getElementById("flightCancelEdit").classList.add("hidden");
+  renderAll();
+});
+
+function editFlight(id) {
+  const f = getFlight(id);
+  document.getElementById("flightEditId").value = f.id;
+  document.getElementById("flightNumber").value = f.flightNumber;
+  document.getElementById("flightRoute").value = f.routeId;
+  document.getElementById("flightAircraft").value = f.aircraftId;
+  document.getElementById("flightDeparture").value = f.departure;
+  document.getElementById("flightArrival").value = f.arrival;
+  document.getElementById("flightStatus").value = f.status;
+  document.getElementById("flightSubmitBtn").textContent = "Update Flight";
+  document.getElementById("flightCancelEdit").classList.remove("hidden");
+  document.querySelector('[data-tab="flights"]').click();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("flightCancelEdit").addEventListener("click", () => {
+  document.getElementById("flightForm").reset();
+  document.getElementById("flightEditId").value = "";
+  document.getElementById("flightSubmitBtn").textContent = "Add Flight";
+  document.getElementById("flightCancelEdit").classList.add("hidden");
+});
+
+function cancelFlight(id) {
+  const f = getFlight(id);
+  if (!confirm(`Cancel flight ${f.flightNumber}? This cannot be undone.`)) return;
+  f.status = "Cancelled";
+  pushLog(`Flight ${f.flightNumber} cancelled.`);
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   RENDER: AIRCRAFT
+   --------------------------------------------------------- */
+
+function renderAircraft() {
+  const tbody = document.getElementById("aircraftTableBody");
+  tbody.innerHTML = state.aircraft.map(a => `
+    <tr>
+      <td>${a.code}</td>
+      <td>${a.model}</td>
+      <td>${totalCapacity(a)}</td>
+      <td>${a.cap["First Class"]} / ${a.cap["Business"]} / ${a.cap["Premium Economy"]} / ${a.cap["Economy"]}</td>
+      <td>${a.maintenance}</td>
+      <td>
+        <button class="icon-btn" onclick="editAircraft('${a.id}')">Edit</button>
+        <button class="icon-btn danger" onclick="deleteAircraft('${a.id}')">Remove</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="6">No aircraft in fleet yet.</td></tr>`;
+}
+
+document.getElementById("aircraftForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const editId = document.getElementById("aircraftEditId").value;
+  const data = {
+    code: document.getElementById("aircraftCode").value.trim(),
+    model: document.getElementById("aircraftModel").value.trim(),
+    cap: {
+      "First Class": Number(document.getElementById("capFirst").value),
+      "Business": Number(document.getElementById("capBusiness").value),
+      "Premium Economy": Number(document.getElementById("capPremium").value),
+      "Economy": Number(document.getElementById("capEconomy").value)
+    },
+    maintenance: document.getElementById("aircraftMaintenance").value
+  };
+
+  if (editId) {
+    Object.assign(getAircraft(editId), data);
+    pushLog(`Aircraft ${data.code} details updated.`);
+  } else {
+    const aircraft = { id: uid("AC", "aircraft"), ...data };
+    state.aircraft.push(aircraft);
+    pushLog(`Aircraft ${aircraft.code} added to fleet.`);
+  }
+
+  e.target.reset();
+  document.getElementById("aircraftEditId").value = "";
+  document.getElementById("aircraftSubmitBtn").textContent = "Add Aircraft";
+  document.getElementById("aircraftCancelEdit").classList.add("hidden");
+  renderAll();
+});
+
+function editAircraft(id) {
+  const a = getAircraft(id);
+  document.getElementById("aircraftEditId").value = a.id;
+  document.getElementById("aircraftCode").value = a.code;
+  document.getElementById("aircraftModel").value = a.model;
+  document.getElementById("capFirst").value = a.cap["First Class"];
+  document.getElementById("capBusiness").value = a.cap["Business"];
+  document.getElementById("capPremium").value = a.cap["Premium Economy"];
+  document.getElementById("capEconomy").value = a.cap["Economy"];
+  document.getElementById("aircraftMaintenance").value = a.maintenance;
+  document.getElementById("aircraftSubmitBtn").textContent = "Update Aircraft";
+  document.getElementById("aircraftCancelEdit").classList.remove("hidden");
+}
+
+document.getElementById("aircraftCancelEdit").addEventListener("click", () => {
+  document.getElementById("aircraftForm").reset();
+  document.getElementById("aircraftEditId").value = "";
+  document.getElementById("aircraftSubmitBtn").textContent = "Add Aircraft";
+  document.getElementById("aircraftCancelEdit").classList.add("hidden");
+});
+
+function deleteAircraft(id) {
+  const inUse = state.flights.some(f => f.aircraftId === id && f.status !== "Cancelled");
+  if (inUse) { alert("Cannot remove: aircraft is assigned to an active flight."); return; }
+  state.aircraft = state.aircraft.filter(a => a.id !== id);
+  pushLog(`Aircraft removed from fleet.`);
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   RENDER: ROUTES
+   --------------------------------------------------------- */
+
+function renderRoutes() {
+  const tbody = document.getElementById("routesTableBody");
+  tbody.innerHTML = state.routes.map(r => `
+    <tr>
+      <td>${r.id}</td>
+      <td>${r.source}</td>
+      <td>${r.destination}</td>
+      <td>${r.stops.length ? r.stops.join(", ") : "Direct"}</td>
+      <td>
+        <button class="icon-btn" onclick="editRoute('${r.id}')">Edit</button>
+        <button class="icon-btn danger" onclick="deleteRoute('${r.id}')">Remove</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="5">No routes defined yet.</td></tr>`;
+}
+
+document.getElementById("routeForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const editId = document.getElementById("routeEditId").value;
+  const stopsRaw = document.getElementById("routeStops").value.trim();
+  const data = {
+    source: document.getElementById("routeSource").value.trim().toUpperCase(),
+    destination: document.getElementById("routeDestination").value.trim().toUpperCase(),
+    stops: stopsRaw ? stopsRaw.split(",").map(s => s.trim().toUpperCase()).filter(Boolean) : []
+  };
+
+  if (editId) {
+    Object.assign(getRoute(editId), data);
+    pushLog(`Route ${editId} updated.`);
+  } else {
+    const route = { id: uid("RT", "route"), ...data };
+    state.routes.push(route);
+    pushLog(`Route ${route.id} (${route.source} → ${route.destination}) added.`);
+  }
+
+  e.target.reset();
+  document.getElementById("routeEditId").value = "";
+  document.getElementById("routeSubmitBtn").textContent = "Add Route";
+  document.getElementById("routeCancelEdit").classList.add("hidden");
+  renderAll();
+});
+
+function editRoute(id) {
+  const r = getRoute(id);
+  document.getElementById("routeEditId").value = r.id;
+  document.getElementById("routeSource").value = r.source;
+  document.getElementById("routeDestination").value = r.destination;
+  document.getElementById("routeStops").value = r.stops.join(", ");
+  document.getElementById("routeSubmitBtn").textContent = "Update Route";
+  document.getElementById("routeCancelEdit").classList.remove("hidden");
+}
+
+document.getElementById("routeCancelEdit").addEventListener("click", () => {
+  document.getElementById("routeForm").reset();
+  document.getElementById("routeEditId").value = "";
+  document.getElementById("routeSubmitBtn").textContent = "Add Route";
+  document.getElementById("routeCancelEdit").classList.add("hidden");
+});
+
+function deleteRoute(id) {
+  const inUse = state.flights.some(f => f.routeId === id && f.status !== "Cancelled");
+  if (inUse) { alert("Cannot remove: route is used by an active flight."); return; }
+  state.routes = state.routes.filter(r => r.id !== id);
+  pushLog(`Route removed.`);
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   RENDER: SEAT INVENTORY
+   --------------------------------------------------------- */
+
+function renderInventoryTable() {
+  const tbody = document.getElementById("inventoryTableBody");
+  let rows = [];
+  state.flights.forEach(f => {
+    const inv = state.inventory[f.id];
+    SEAT_CLASSES.forEach(cls => {
+      const c = inv[cls];
+      if (c.total === 0) return;
+      const avail = availableSeats(f.id, cls);
+      const limit = Math.floor(c.total * (1 + c.overbookPct / 100));
+      rows.push(`
+        <tr>
+          <td>${f.flightNumber}</td>
+          <td>${cls}</td>
+          <td>${c.total}</td>
+          <td>${c.booked}</td>
+          <td>${avail}</td>
+          <td>${limit}</td>
+          <td>${statusBadge(avail, c.total)}</td>
+        </tr>`);
+    });
+  });
+  tbody.innerHTML = rows.join("") || `<tr><td colspan="7">No inventory data yet.</td></tr>`;
+}
+
+document.getElementById("bookSeatBtn").addEventListener("click", () => {
+  const flightId = document.getElementById("invFlightSelect").value;
+  const cls = document.getElementById("invClassSelect").value;
+  const overbookPct = Number(document.getElementById("invOverbookPct").value) || 0;
+  if (!flightId) { alert("Select a flight first."); return; }
+
+  const inv = state.inventory[flightId][cls];
+  inv.overbookPct = overbookPct;
+  const limit = Math.floor(inv.total * (1 + overbookPct / 100));
+
+  if (inv.booked >= limit) {
+    alert(`Cannot book: ${cls} is at capacity (including overbooking allowance) for this flight.`);
+    pushLog(`Booking rejected — ${cls} full on ${getFlight(flightId).flightNumber}.`);
+    return;
+  }
+  inv.booked += 1;
+  pushLog(`Seat booked: ${cls} on ${getFlight(flightId).flightNumber}. Inventory synced.`);
+  renderAll();
+});
+
+document.getElementById("cancelSeatBtn").addEventListener("click", () => {
+  const flightId = document.getElementById("invFlightSelect").value;
+  const cls = document.getElementById("invClassSelect").value;
+  if (!flightId) { alert("Select a flight first."); return; }
+  const inv = state.inventory[flightId][cls];
+  if (inv.booked <= 0) { alert("No booked seats to cancel in this class."); return; }
+  inv.booked -= 1;
+  pushLog(`Booking cancelled: ${cls} on ${getFlight(flightId).flightNumber}. Seat released to inventory.`);
+  renderAll();
+});
+
+/* ---------------------------------------------------------
+   RENDER: FARE INVENTORY
+   --------------------------------------------------------- */
+
+function renderFares() {
+  const tbody = document.getElementById("faresTableBody");
+  tbody.innerHTML = state.fares.map(fr => {
+    const flight = getFlight(fr.flightId);
+    return `
+      <tr>
+        <td>${flight ? flight.flightNumber : "-"}</td>
+        <td>${fr.class}</td>
+        <td>${fr.code}</td>
+        <td>₹${fr.price.toLocaleString("en-IN")}</td>
+        <td>${fr.allocated}</td>
+        <td><button class="icon-btn danger" onclick="deleteFare('${fr.id}')">Remove</button></td>
+      </tr>`;
+  }).join("") || `<tr><td colspan="6">No fare classes defined yet.</td></tr>`;
+}
+
+document.getElementById("fareForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const flightId = document.getElementById("fareFlightSelect").value;
+  if (!flightId) { alert("Select a flight."); return; }
+  const fare = {
+    id: uid("FR", "fare"),
+    flightId,
+    class: document.getElementById("fareClassSelect").value,
+    code: document.getElementById("fareCode").value.trim(),
+    price: Number(document.getElementById("farePrice").value),
+    allocated: Number(document.getElementById("fareAllocated").value)
+  };
+  state.fares.push(fare);
+  pushLog(`Fare ${fare.code} added for ${getFlight(flightId).flightNumber} (${fare.class}).`);
+  e.target.reset();
+  renderAll();
+});
+
+function deleteFare(id) {
+  state.fares = state.fares.filter(f => f.id !== id);
+  pushLog(`Fare class removed.`);
+  renderAll();
+}
+
+/* ---------------------------------------------------------
+   RENDER: AVAILABILITY CHECK
+   --------------------------------------------------------- */
+
+document.getElementById("availForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const src = document.getElementById("availSource").value.trim().toUpperCase();
+  const dest = document.getElementById("availDestination").value.trim().toUpperCase();
+  const cls = document.getElementById("availClass").value;
+
+  let rows = [];
+  state.flights.forEach(f => {
+    if (f.status === "Cancelled") return;
+    const route = getRoute(f.routeId);
+    if (!route) return;
+    if (src && route.source !== src) return;
+    if (dest && route.destination !== dest) return;
+
+    const classesToShow = cls ? [cls] : SEAT_CLASSES;
+    classesToShow.forEach(c => {
+      const inv = state.inventory[f.id][c];
+      if (inv.total === 0) return;
+      const avail = availableSeats(f.id, c);
+      rows.push(`
+        <tr>
+          <td>${f.flightNumber}</td>
+          <td>${route.source} → ${route.destination}</td>
+          <td>${f.departure.replace("T", " ")}</td>
+          <td>${c}</td>
+          <td>${avail}</td>
+          <td>${statusBadge(avail, inv.total)}</td>
+        </tr>`);
+    });
+  });
+
+  document.getElementById("availabilityTableBody").innerHTML =
+    rows.join("") || `<tr><td colspan="6">No matching flights found.</td></tr>`;
+});
+
+/* ---------------------------------------------------------
+   MASTER RENDER
+   --------------------------------------------------------- */
+
+function renderAll() {
+  refreshDropdowns();
+  renderDashboard();
+  renderFlights();
+  renderAircraft();
+  renderRoutes();
+  renderInventoryTable();
+  renderFares();
+  renderLog();
+}
+
+/* ---------------------------------------------------------
+   INIT
+   --------------------------------------------------------- */
+
+seedFlights();
+renderAll();
+pushLog("System initialized. Inventory synchronized across all modules.");
+</script>
+</body>
+</html>
