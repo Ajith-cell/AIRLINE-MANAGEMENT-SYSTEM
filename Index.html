@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyLedger - Airline Inventory Management</title>
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ================= Sidebar ================= -->
+
+<aside class="rail">
+
+<div class="rail-brand">
+<span class="rail-brand__mark">SL</span>
+
+<div class="rail-brand__text">
+<strong>SkyLedger</strong>
+<small>Inventory Control</small>
+</div>
+
+</div>
+
+<nav class="rail-nav">
+
+<button class="rail-nav__item is-active"
+data-view="dashboard">
+
+<span class="rail-nav__dot"></span>
+Dashboard
+
+</button>
+
+<button class="rail-nav__item"
+data-view="flights">
+
+<span class="rail-nav__dot"></span>
+Flights
+
+</button>
+
+<button class="rail-nav__item"
+data-view="aircraft">
+
+<span class="rail-nav__dot"></span>
+Aircraft
+
+</button>
+
+<button class="rail-nav__item"
+data-view="routes">
+
+<span class="rail-nav__dot"></span>
+Routes
+
+</button>
+
+<button class="rail-nav__item"
+data-view="fares">
+
+<span class="rail-nav__dot"></span>
+Fare Inventory
+
+</button>
+
+<button class="rail-nav__item"
+data-view="availability">
+
+<span class="rail-nav__dot"></span>
+Availability & Sync
+
+</button>
+
+</nav>
+
+<div class="rail-foot">
+
+<div class="rail-clock"
+id="railClock">
+
+--:--
+
+</div>
+
+<div class="rail-foot__label">
+Local System Time
+</div>
+
+</div>
+
+</aside>
+
+<!-- ================= Main ================= -->
+
+<main class="main">
+
+<header class="topbar">
+
+<div class="topbar-title">
+
+<h1 id="viewTitle">
+
+Operations Dashboard
+
+</h1>
+
+<p id="viewSubtitle">
+
+Live snapshot of the network
+
+</p>
+
+</div>
+
+<div class="topbar-status">
+
+<span class="pill pill--live">
+
+Inventory Synced
+
+</span>
+
+</div>
+
+</header>
+
+<!-- ================= Dashboard ================= -->
+
+<section class="view is-active"
+id="view-dashboard">
+
+<div class="stat-grid">
+
+<div class="stat-card">
+
+<span class="stat-card__label">
+Active Flights
+</span>
+
+<span class="stat-card__value"
+id="statFlights">
+
+0
+
+</span>
+
+<span class="stat-card__foot">
+
+Scheduled & Boarding
+
+</span>
+
+</div>
+
+<div class="stat-card">
+
+<span class="stat-card__label">
+Aircraft Fleet
+</span>
+
+<span class="stat-card__value"
+id="statAircraft">
+
+0
+
+</span>
+
+<span class="stat-card__foot">
+
+Across all types
+
+</span>
+
+</div>
+<div class="stat-card">
+
+<span class="stat-card__label">
+Seats Booked Today
+</span>
+
+<span class="stat-card__value"
+id="statBooked">
+
+0
+
+</span>
+
+<span class="stat-card__foot"
+id="statBookedPct">
+
+0% Load Factor
+
+</span>
+
+</div>
+
+<div class="stat-card">
+
+<span class="stat-card__label">
+Routes Served
+</span>
+
+<span class="stat-card__value"
+id="statRoutes">
+
+0
+
+</span>
+
+<span class="stat-card__foot">
+
+Direct & Connecting
+
+</span>
+
+</div>
+
+</div>
+
+<div class="panel-row">
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>Flight Board</h2>
+
+<span class="panel__hint">
+
+Real-time seat availability by cabin
+
+</span>
+
+</div>
+
+<div class="table-wrap">
+
+<table class="table" id="dashboardBoard">
+
+<thead>
+
+<tr>
+
+<th>Flight</th>
+<th>Route</th>
+<th>Departure</th>
+<th>Aircraft</th>
+<th>Economy</th>
+<th>Premium</th>
+<th>Business</th>
+<th>First</th>
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel__head">
+
+<h2>Maintenance Watch</h2>
+
+<span class="panel__hint">
+
+Upcoming Aircraft Holds
+
+</span>
+
+</div>
+
+<ul class="watch-list"
+
+id="maintenanceWatch">
+
+</ul>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= FLIGHTS ================= -->
+
+<section class="view"
+
+id="view-flights">
+
+<div class="panel-row">
+
+<div class="panel panel--form">
+
+<div class="panel__head">
+
+<h2>Schedule Flight</h2>
+
+</div>
+
+<form id="flightForm"
+
+class="form">
+
+<label>
+
+Flight Number
+
+<input
+type="text"
+name="flightNumber"
+placeholder="SL 204"
+required>
+
+</label>
+
+<label>
+
+Route
+
+<select
+name="routeId"
+id="flightRouteSelect"
+required>
+
+</select>
+
+</label>
+
+<label>
+
+Aircraft
+
+<select
+name="aircraftId"
+id="flightAircraftSelect"
+required>
+
+</select>
+
+</label>
+
+<div class="form-row">
+
+<label>
+
+Departure Date
+
+<input
+type="date"
+name="date"
+required>
+
+</label>
+
+<label>
+
+Departure Time
+
+<input
+type="time"
+name="time"
+required>
+
+</label>
+
+</div>
+
+<button
+type="submit"
+class="btn btn--primary">
+
+Add Flight
+
+</button>
+
+</form>
+
+</div>
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>All Flights</h2>
+
+<span class="panel__hint">
+
+Update schedule, aircraft or cancel
+
+</span>
+
+</div>
+
+<div class="table-wrap">
+
+<table
+class="table"
+id="flightsTable">
+
+<thead>
+
+<tr>
+
+<th>Flight</th>
+<th>Route</th>
+<th>Aircraft</th>
+<th>Departure</th>
+<th>Seats (Booked/Total)</th>
+<th>Status</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= AIRCRAFT ================= -->
+
+<section class="view" id="view-aircraft">
+
+<div class="panel-row">
+
+<div class="panel panel--form">
+
+<div class="panel__head">
+<h2>Register Aircraft</h2>
+</div>
+
+<form id="aircraftForm" class="form">
+
+<label>
+Tail / Registration
+<input
+type="text"
+name="tail"
+placeholder="VT-SLK"
+required>
+</label>
+
+<label>
+Aircraft Type
+<input
+type="text"
+name="type"
+placeholder="Airbus A320neo"
+required>
+</label>
+
+<div class="form-row">
+
+<label>
+Economy Seats
+<input
+type="number"
+name="economy"
+min="0"
+value="150"
+required>
+</label>
+
+<label>
+Premium Economy
+<input
+type="number"
+name="premium"
+min="0"
+value="24"
+required>
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label>
+Business Seats
+<input
+type="number"
+name="business"
+min="0"
+value="16"
+required>
+</label>
+
+<label>
+First Class Seats
+<input
+type="number"
+name="first"
+min="0"
+value="0"
+required>
+</label>
+
+</div>
+
+<label>
+Next Maintenance Date
+<input
+type="date"
+name="maintenance">
+</label>
+
+<label>
+Maintenance Note
+<input
+type="text"
+name="maintenanceNote"
+placeholder="A-Check">
+</label>
+
+<button
+type="submit"
+class="btn btn--primary">
+
+Add Aircraft
+
+</button>
+
+</form>
+
+</div>
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>Fleet</h2>
+
+<span class="panel__hint">
+
+Capacity derived from cabin configuration
+
+</span>
+
+</div>
+
+<div class="table-wrap">
+
+<table
+class="table"
+id="aircraftTable">
+
+<thead>
+
+<tr>
+
+<th>Tail No</th>
+<th>Aircraft</th>
+<th>Capacity</th>
+<th>Configuration</th>
+<th>Maintenance</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= ROUTES ================= -->
+
+<section class="view" id="view-routes">
+
+<div class="panel-row">
+
+<div class="panel panel--form">
+
+<div class="panel__head">
+
+<h2>Create Route</h2>
+
+</div>
+
+<form id="routeForm" class="form">
+
+<label>
+
+Source Airport (IATA)
+
+<input
+type="text"
+name="source"
+maxlength="3"
+placeholder="DEL"
+required>
+
+</label>
+
+<label>
+
+Destination Airport (IATA)
+
+<input
+type="text"
+name="destination"
+maxlength="3"
+placeholder="BOM"
+required>
+
+</label>
+
+<label>
+
+Intermediate Stops
+
+<small>(Optional)</small>
+
+<input
+type="text"
+name="stops"
+placeholder="JAI, AMD">
+
+</label>
+
+<button
+type="submit"
+class="btn btn--primary">
+
+Add Route
+
+</button>
+
+</form>
+
+</div>
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>Route Network</h2>
+
+</div>
+
+<div class="table-wrap">
+
+<table
+class="table"
+id="routesTable">
+
+<thead>
+
+<tr>
+
+<th>Route</th>
+<th>Source</th>
+<th>Destination</th>
+<th>Stops</th>
+<th>Flights</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+<!-- ================= AIRCRAFT ================= -->
+
+<section class="view" id="view-aircraft">
+
+<div class="panel-row">
+
+<div class="panel panel--form">
+
+<div class="panel__head">
+<h2>Register Aircraft</h2>
+</div>
+
+<form id="aircraftForm" class="form">
+
+<label>
+Tail / Registration
+<input
+type="text"
+name="tail"
+placeholder="VT-SLK"
+required>
+</label>
+
+<label>
+Aircraft Type
+<input
+type="text"
+name="type"
+placeholder="Airbus A320neo"
+required>
+</label>
+
+<div class="form-row">
+
+<label>
+Economy Seats
+<input
+type="number"
+name="economy"
+min="0"
+value="150"
+required>
+</label>
+
+<label>
+Premium Economy
+<input
+type="number"
+name="premium"
+min="0"
+value="24"
+required>
+</label>
+
+</div>
+
+<div class="form-row">
+
+<label>
+Business Seats
+<input
+type="number"
+name="business"
+min="0"
+value="16"
+required>
+</label>
+
+<label>
+First Class Seats
+<input
+type="number"
+name="first"
+min="0"
+value="0"
+required>
+</label>
+
+</div>
+
+<label>
+Next Maintenance Date
+<input
+type="date"
+name="maintenance">
+</label>
+
+<label>
+Maintenance Note
+<input
+type="text"
+name="maintenanceNote"
+placeholder="A-Check">
+</label>
+
+<button
+type="submit"
+class="btn btn--primary">
+
+Add Aircraft
+
+</button>
+
+</form>
+
+</div>
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>Fleet</h2>
+
+<span class="panel__hint">
+
+Capacity derived from cabin configuration
+
+</span>
+
+</div>
+
+<div class="table-wrap">
+
+<table
+class="table"
+id="aircraftTable">
+
+<thead>
+
+<tr>
+
+<th>Tail No</th>
+<th>Aircraft</th>
+<th>Capacity</th>
+<th>Configuration</th>
+<th>Maintenance</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= ROUTES ================= -->
+
+<section class="view" id="view-routes">
+
+<div class="panel-row">
+
+<div class="panel panel--form">
+
+<div class="panel__head">
+
+<h2>Create Route</h2>
+
+</div>
+
+<form id="routeForm" class="form">
+
+<label>
+
+Source Airport (IATA)
+
+<input
+type="text"
+name="source"
+maxlength="3"
+placeholder="DEL"
+required>
+
+</label>
+
+<label>
+
+Destination Airport (IATA)
+
+<input
+type="text"
+name="destination"
+maxlength="3"
+placeholder="BOM"
+required>
+
+</label>
+
+<label>
+
+Intermediate Stops
+
+<small>(Optional)</small>
+
+<input
+type="text"
+name="stops"
+placeholder="JAI, AMD">
+
+</label>
+
+<button
+type="submit"
+class="btn btn--primary">
+
+Add Route
+
+</button>
+
+</form>
+
+</div>
+
+<div class="panel panel--wide">
+
+<div class="panel__head">
+
+<h2>Route Network</h2>
+
+</div>
+
+<div class="table-wrap">
+
+<table
+class="table"
+id="routesTable">
+
+<thead>
+
+<tr>
+
+<th>Route</th>
+<th>Source</th>
+<th>Destination</th>
+<th>Stops</th>
+<th>Flights</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+<!-- ================= FOOTER ================= -->
+
+<footer class="footer">
+
+<div class="footer-left">
+© 2026 SkyLedger Airline Inventory Management System
+</div>
+
+<div class="footer-right">
+
+<span id="syncStatus">
+Last Sync: Just Now
+</span>
+
+</div>
+
+</footer>
+
+</main>
+
+</div>
+
+<!-- ================= Notification ================= -->
+
+<div id="toast" class="toast"></div>
+
+<!-- ================= Delete Confirmation Modal ================= -->
+
+<div id="confirmModal" class="modal hidden">
+
+<div class="modal-content">
+
+<h2>Delete Record</h2>
+
+<p>
+Are you sure you want to delete this record?
+</p>
+
+<div class="modal-actions">
+
+<button
+id="confirmYes"
+class="btn btn--danger">
+
+Delete
+
+</button>
+
+<button
+id="confirmNo"
+class="btn">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ================= Loading Overlay ================= -->
+
+<div id="loadingOverlay"
+class="loading hidden">
+
+<div class="spinner"></div>
+
+<p>
+Processing...
+</p>
+
+</div>
+
+<!-- ================= Scripts ================= -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
